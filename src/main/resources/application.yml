@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/webpan&allowMultiQueries=true
+    username: root
+    password: Fjj150502008!
+  data:
+    redis:
+      host: 192.168.137.11
+      port: 6379
+      password: fjj150502008
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 3490139755@qq.com
+    password: eulewspzwjkqdbjf
+    properties:
+      mail:
+        debug: true
+        smtp:
+          ssl:
+            enable: true
+mybatis:
+  type-aliases-package: xju.fjj.webpan.entity.pojo  #启用别名
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+project:
+  folder: E:\webpan\ #项目文件存储路径
+  adminEmails: fengjunjief@qq.com
+  totalSpace: 5

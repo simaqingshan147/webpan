@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xju.fjj.webpan.mapper.ShareInfoMapper">
+    <resultMap id="shareInfoMap" type="shareInfo">
+        <id property="shareId" column="share_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="documentId" column="document_id"/>
+        <result property="isFolder" column="is_folder"/>
+        <result property="code" column="code"/>
+        <result property="validType" column="valid_type"/>
+        <result property="shareTime" column="share_time"/>
+        <result property="showCount" column="show_count"/>
+    </resultMap>
+
+    <select id="selectShareInfoByPage" resultType="shareInfo" resultMap="shareInfoMap">
+        select * from share_info
+        <where>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectShareInfoById" resultType="shareInfo" resultMap="shareInfoMap">
+        select * from share_info where share_id = #{shareId}
+    </select>
+
+    <insert id="insert" parameterType="shareInfo" useGeneratedKeys="true" keyProperty="shareId" keyColumn="share_id">
+        insert into share_info(user_id, document_id, is_folder, valid_type, share_time, code, show_count)
+            values (#{userId},#{documentId},#{isFolder},#{validType},#{shareTime},#{code},#{showCount})
+    </insert>
+
+    <update id="update" parameterType="shareInfo">
+        update share_info
+        <set>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="documentId != null">
+                document_id = #{documentId},
+            </if>
+            <if test="isFolder != null">
+                is_folder = #{isFolder},
+            </if>
+            <if test="validType != null">
+                valid_type = #{validType},
+            </if>
+            <if test="shareTime != null">
+                share_time = #{shareTime},
+            </if>
+            <if test="code != null and code != ''">
+                code = #{code},
+            </if>
+            <if test="showCount != null">
+                show_count = #{showCount}
+            </if>
+        </set>
+        where share_id = #{shareId}
+    </update>
+
+    <delete id="deleteShareInfoBatch">
+        delete share_info
+        <where>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId}
+            </if>
+            <if test="shareIds != null and shareIds.size > 0">
+                and share_id in(
+                <foreach collection="shareIds" item="shareId" separator=",">#{shareId}</foreach>
+                )
+            </if>
+        </where>
+    </delete>
+</mapper>

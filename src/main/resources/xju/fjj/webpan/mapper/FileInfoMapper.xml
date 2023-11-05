@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xju.fjj.webpan.mapper.FileInfoMapper">
+    <resultMap id="FileInfoMap" type="fileInfo">
+        <id column="file_id" property="fileId"/>
+        <result column="user_id" property="userId"/>
+        <result column="dir_id" property="dirId"/>
+        <result column="file_md5" property="fileMd5"/>
+        <result column="file_path" property="filePath"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="file_cover" property="fileCover"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="file_type" property="fileType"/>
+        <result column="status" property="status"/>
+        <result column="recovery_time" property="recoveryTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="fileInfo" useGeneratedKeys="true" keyColumn="file_id" keyProperty="fileId">
+        insert into file_info(user_id, dir_id, file_md5, file_name, file_path, file_size, file_cover,create_time,update_time, file_type, status, recovery_time)
+        values(#{userId},#{dirId},#{fileMd5},#{fileName},#{filePath},#{fileSize},#{fileCover},#{createTime},#{updateTime},#{fileType},#{status},#{recoveryTime})
+    </insert>
+    <insert id="insertBatch">
+        insert into file_info(user_id, dir_id, file_md5, file_name, file_path, file_size, file_cover,create_time,update_time, file_type, status, recovery_time)
+        values
+        <foreach collection="fileInfos" item="fileInfo" separator=",">
+            (#{fileInfo.userId},#{fileInfo.dirId},#{fileInfo.fileMd5},#{fileInfo.fileName},#{fileInfo.filePath},#{fileInfo.fileSize},#{fileInfo.fileCover},#{fileInfo.createTime},#{fileInfo.updateTime},#{fileInfo.fileType},#{fileInfo.status},#{fileInfo.recoveryTime})
+        </foreach>
+    </insert>
+
+    <update id="updateFileInfo" parameterType="fileInfo">
+        update file_info
+        <set>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="dirId != null">
+                dir_id = #{dirId},
+            </if>
+            <if test="fileMd5 != null and fileMd5 != ''">
+                file_md5 = #{fileMd5},
+            </if>
+            <if test="fileName != null and fileName != ''">
+                file_name = #{fileName},
+            </if>
+            <if test="filePath != null and filePath != ''">
+                file_path = #{filePath},
+            </if>
+            <if test="fileSize != null">
+                file_size = #{fileSize},
+            </if>
+            <if test="fileCover != null and fileCover != ''">
+                file_cover = #{fileCover},
+            </if>
+            <if test="create_time != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="fileType != null">
+                file_type = #{fileType},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="recoveryTime != null">
+                recovery_time = #{recoveryTime}
+            </if>
+        </set>
+        where file_id = #{fileId}
+    </update>
+
+    <!--3:FileStatusEnums.Using.getStatus(),表示只移动正常状态文件-->
+    <update id="updateBatchDirIdByIds">
+        update file_info set dir_id = #{dirId},update_time = now()
+        where
+            file_id in (<foreach collection="fileIds" item="fileId" separator=",">#{fileId}</foreach>) and status = 3
+    </update>
+
+    <!--
+        3:FileStatusEnums.Using.getStatus()
+        4:FileStatusEnums.Recovery.getStatus()
+        传入status为正常,移出回收站
+        传入status为回收站,移入回收站
+    -->
+    <update id="updateBatchStatusByIds">
+        update file_info set status = #{status}
+        <trim prefix=",">
+            <if test="status = 3">
+                recovery_time = null,update_time = now()
+            </if>
+            <if test="status = 4">
+                recovery_time = now(),update_time = null
+            </if>
+        </trim>
+        where
+            file_id in (<foreach collection="fileIds" item="fileId" separator=",">#{fileId}</foreach>)
+    </update>
+
+    <select id="selectFilesByIds" resultType="fileInfo" resultMap="FileInfoMap">
+        select * from file_info
+        <where>
+            <if test="query.userId != null and userId != ''">
+                user_id = #{query.userId}
+            </if>
+            <if test="query.pid != null">
+                and dir_id = #{query.pid}
+            </if>
+            <if test="query.name != null and name != ''">
+                and file_name like concat('%',#{query.name},'%')
+            </if>
+            <if test="query.type != null and query.type.size>0">
+                and file_type in (<foreach collection="query.type" item="type" separator=",">#{type}</foreach> )
+            </if>
+            <if test="query.status != null">
+                and status = #{query.status}
+            </if>
+            <if test="fileIds != null and fileIds.size>0">
+                and file_id in <foreach collection="fileIds" item="fileId" separator="," open="(" close=")">#{fileId.fileId}</foreach>
+            </if>
+        </where>
+        order by ${orderBy}
+    </select>
+
+    <select id="selectFileAndDirByPage" resultType="xju.fjj.webpan.entity.vo.Document">
+        (
+            select file_id id,dir_id pid,file_name name,update_time updateTime,file_cover cover,true isFolder,file_type type,status
+            from file_info
+            <where>
+                <if test="pid != null">
+                    dir_id = #{pid}
+                </if>
+                <if test="name != null and name != ''">
+                    and file_name like concat('%',#{name},'%')
+                </if>
+                <if test="status != null">
+                    and status = #{status}
+                </if>
+            </where>
+        ) union all(
+            select dir_id id,dir_pid pid,dir_name name,update_time updateTime,'' cover,false isFolder,0 type,status
+            from dir_info
+            <where>
+                <if test="pid != null">
+                    dir_pid = #{pid}
+                </if>
+                <if test="name != null and name != ''">
+                    and dir_name like concat('%',#{name},'%')
+                </if>
+                <if test="status != null">
+                    and status = #{status}
+                </if>
+            </where>
+        ) as T
+        order by ${orderBy}
+    </select>
+
+    <select id="selectFileCount" resultType="int">
+        select count(file_id) from file_info
+        <where>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId}
+            </if>
+            <if test="pid != null">
+                and dir_pid = #{pid}
+            </if>
+            <if test="name != null and name != ''">
+                and dir_name = #{name}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="type != null and type.size>0">
+                and file_type in (<foreach collection="type" item="t" separator=",">#{t}</foreach> )
+            </if>
+        </where>
+    </select>
+
+    <select id="selectFileByFileId" resultType="fileInfo" resultMap="FileInfoMap">
+        select * from file_info
+        where file_id = #{fileId} and user_id = #{userId}
+    </select>
+    <select id="selectUseSpace" resultType="long">
+        select IFNULL(sum(file_size),0) from file_info where user_id = #{userId}
+        <if test="status != null">
+            and status = #{status}
+        </if>
+    </select>
+    <select id="selectFileByMd5AndStatus" resultType="fileInfo" resultMap="FileInfoMap">
+        select * from file_info where file_md5 = #{fileMd5}
+        <if test="status != null">
+            and status = #{status}
+        </if>
+    </select>
+
+</mapper>

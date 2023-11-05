@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xju.fjj.webpan.mapper.UserInfoMapper">
+
+    <resultMap id="UserInfoMap" type="UserInfo">
+        <id column="user_id" property="userId"/>
+        <result column="nick_name" property="nickName"/>
+        <result column="email" property="email"/>
+        <result column="join_time" property="joinTime"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+        <result column="status" property="status"/>
+        <result column="use_space" property="useSpace"/>
+        <result column="total_space" property="totalSpace"/>
+    </resultMap>
+
+    <!--根据昵称和状态实现分页查询-->
+    <select id="selectAllByPage" resultType="UserInfo" resultMap="UserInfoMap">
+        select * from user_info
+        <where>
+            <if test="nickName != null and nickName != ''">
+                nick_name like concat('%',#{nickName},'%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByEmail" resultType="userInfo" resultMap="UserInfoMap">
+        select * from user_info where email = #{email}
+    </select>
+    <select id="selectByUserId" resultType="userInfo" resultMap="UserInfoMap">
+        select * from user_info where user_id = #{userId}
+    </select>
+    <select id="selectTotalSpace" resultType="long">
+        select IFNULL(total_space,0) from user_info where user_id = #{userId}
+    </select>
+
+    <!--动态更新UserInfo-->
+    <update id="update">
+        update user_info
+        <set>
+            <if test="nickName != null and nickName != ''">
+                nick_name = #{nickName},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="joinTime != null">
+                join_time = #{joinTime},
+            </if>
+            <if test="lastLoginTime != null">
+                last_login_time = #{lastLoginTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="useSpace != null">
+                use_space = #{useSpace},
+            </if>
+            <if test="totalSpace != null">
+                total_space = #{totalSpace}
+            </if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <insert id="insert">
+        insert into user_info
+        values(#{userId},#{nickName},#{email},#{password},#{joinTime},#{lastLoginTime},#{status},#{useSpace},#{totalSpace})
+    </insert>
+</mapper>

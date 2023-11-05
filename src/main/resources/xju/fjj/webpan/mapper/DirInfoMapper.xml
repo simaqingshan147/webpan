@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xju.fjj.webpan.mapper.DirInfoMapper">
+    <resultMap id="dirInfoMap" type="dirInfo">
+        <id column="dir_id" property="dirId"/>
+        <result column="user_id" property="userId"/>
+        <result column="dir_pid" property="dirPid"/>
+        <result column="dir_name" property="dirName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+        <result column="recovery_time" property="recoveryTime"/>
+    </resultMap>
+
+    <update id="updateDirInfo" parameterType="dirInfo">
+        update dir_info
+        <set>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="dirPid != null">
+                dir_pid = #{dirPid},
+            </if>
+            <if test="dirName != null and dirName != ''">
+                dir_name = #{dirName},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="recoveryTime != null">
+                recovery_time = #{recoveryTime}
+            </if>
+        </set>
+        where dir_id = #{dirId}
+    </update>
+
+    <!--3:FileStatusEnums.Using.getStatus(),表示只移动正常状态的目录-->
+    <update id="updateBatchDirPidByIds">
+        update dir_info set dir_pid = #{dirPid},update_time = NOW()
+        where
+            dir_id in (<foreach collection="dirIds" item="dirId" separator=",">#{dirId}</foreach>) and status = 3
+    </update>
+
+    <!--
+        3:FileStatusEnums.Using.getStatus()
+        4:FileStatusEnums.Recovery.getStatus()
+        传入status为正常,移出回收站
+        传入status为回收站,移入回收站
+    -->
+    <update id="updateBatchStatusByIds">
+        update dir_info set status = #{status}
+        <trim prefix=",">
+            <if test="status = 3">
+                recovery_time = null,update_time = now()
+            </if>
+            <if test="status = 4">
+                recovery_time = now(),update_time = null
+            </if>
+        </trim>
+        where
+            dir_id in (<foreach collection="dirIds" item="dirId" separator=",">#{dirId}</foreach>)
+    </update>
+
+    <select id="selectDirs" resultType="dirInfo" resultMap="dirInfoMap">
+        select * from dir_info
+        <where>
+            <if test="query.userId != null and query.userId != ''">
+                user_id = #{query.userId}
+            </if>
+            <if test="query.pid != null">
+                and dir_pid = #{query.pid}
+            </if>
+            <if test="query.name != null and query.name != ''">
+                and dir_name likes('%',#{query.name},'%')
+            </if>
+            <if test="query.status != null">
+                and status = #{query.status}
+            </if>
+            <if test="excludeDirs != null and excludeDirs.size > 0">
+                and dir_id not in
+                <foreach collection="excludeDirs" item="dirId" open="(" close=")" separator=",">#{dirId}</foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDirsByIds" resultType="dirInfo" resultMap="dirInfoMap">
+        select * from dir_info
+        <where>
+            <if test="query.userId != null and query.userId != ''">
+                user_id = #{query.userId}
+            </if>
+            <if test="query.pid != null">
+                and dir_pid = #{query.pid}
+            </if>
+            <if test="query.name != null and query.name != ''">
+                and dir_name likes('%',#{query.name},'%')
+            </if>
+            <if test="query.status != null">
+                and status = #{query.status}
+            </if>
+            <if test="dirIds != null and dirIds.size > 0">
+                and dir_id in
+                <foreach collection="dirIds" item="dirId" open="(" close=")" separator=",">#{dirId}</foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDirCount" resultType="int" parameterType="xju.fjj.webpan.entity.query.FileInfoQuery">
+        select count(user_id) from dir_info
+        <where>
+            <if test="pid != null">
+                dir_pid = #{pid}
+            </if>
+            <if test="name != null and name != ''">
+                and dir_name = #{name}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="selectDirByDirId" resultType="dirInfo" resultMap="dirInfoMap">
+        select * from dir_info where dir_id = #{dir_id}
+    </select>
+
+    <insert id="insertDir" parameterType="dirInfo" useGeneratedKeys="true" keyColumn="dir_id" keyProperty="dirId">
+        insert into dir_info(user_id, dir_pid, dir_name, update_time, status, recovery_time)
+        values(#{userId},#{dirPid},#{dirName},#{updateTime},#{status},#{recoveryTime})
+    </insert>
+</mapper>

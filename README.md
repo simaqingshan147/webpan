@@ -52,5 +52,5 @@
 - ssm框架
 - ffmpeg,生成切片与缩略图
 - redis,保存验证码和分享码
-- Vue
+- Vue3
   

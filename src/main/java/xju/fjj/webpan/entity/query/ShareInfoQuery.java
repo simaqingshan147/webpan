@@ -1,11 +1,6 @@
 package xju.fjj.webpan.entity.query;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import org.hibernate.validator.constraints.Length;
-import xju.fjj.webpan.entity.constants.Constants;
-
-import java.util.Date;
 
 /**
  * @author 新疆大学 冯俊杰

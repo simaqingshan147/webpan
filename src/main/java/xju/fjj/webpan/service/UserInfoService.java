@@ -32,4 +32,6 @@ public interface UserInfoService {
     File getAvatarFile(String userId);
 
     void logout(String userId);
+
+    void updateUserSpace(String userId,Long totalSpace);
 }

@@ -1,7 +1,5 @@
 package xju.fjj.webpan.controller;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Min;
@@ -23,10 +21,9 @@ import xju.fjj.webpan.entity.vo.Document;
 import xju.fjj.webpan.entity.vo.PagedResult;
 import xju.fjj.webpan.entity.vo.ResponseVo;
 import xju.fjj.webpan.exception.ServerException;
-import xju.fjj.webpan.service.FileInfoService;
 
-import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 新疆大学 冯俊杰
@@ -36,9 +33,7 @@ import java.util.List;
  */
 @RestController("fileInfoController")
 @RequestMapping("/file")
-public class FileInfoController extends BaseController{
-    @Resource
-    FileInfoService fileInfoService;
+public class FileInfoController extends BaseFileController{
 
     /*获取首页的文件和目录列表*/
     @PostMapping("/loadDataList")
@@ -75,22 +70,28 @@ public class FileInfoController extends BaseController{
         return success(uploadResultDto);
     }
 
+    /*获取文件封面*/
+    @GetMapping("/getImage/{imageFolder}/{imageName}")
+    public void getImage(HttpServletResponse response,
+                         @PathVariable(value = "imageFolder",required = false) String imageFolder,
+                         @PathVariable(value = "imageName",required = false) String imageName,
+                         @RequestParam(value = "isFolder",defaultValue = "false")Boolean isFolder){
+        super.getImage(response,imageFolder,imageName,isFolder);
+    }
+
+    /*获取一长串目录下的最末目录的id,也就是获取当前所属目录id*/
+    @GetMapping("/getFolderInfo")
+    public ResponseVo<Map<String, Object>> getFolderInfo(@NotBlank String path){
+        return super.getFolderInfo(path);
+    }
+
     /*预览获取视频索引或切片文件*/
     @GetMapping("/getVideoInfo/{fileId}")
     public void getVideoInfo(HttpServletResponse response,
                         HttpSession session,
                         @PathVariable("fileId") @NotBlank String fileId){
         SessionUserDto userDto = getUserInfoFromSession(session);
-        File result = null;
-        //fileId是fileId_xxxx.ts，则返回对应ts文件
-        if(fileId.endsWith("ts"))
-            result = fileInfoService.getVideo(userDto.getUserId(),fileId);
-        //fileId是fileId，则返回视频的m3u8索引
-        else
-            result = fileInfoService.getFile(userDto.getUserId(),Integer.getInteger(fileId));
-        if(result == null || !result.exists())
-            throw new ServerException(ResultCodeEnum.CODE_404,"视频文件不存在");
-        readFile(response,result);
+        super.getVideoInfo(response, userDto.getUserId(), fileId);
     }
 
     /*预览获取文件*/
@@ -99,10 +100,7 @@ public class FileInfoController extends BaseController{
                         HttpSession session,
                         @PathVariable("fileId") @NotNull Integer fileId){
         SessionUserDto userDto = getUserInfoFromSession(session);
-        File result = fileInfoService.getFile(userDto.getUserId(), fileId);
-        if(result == null || !result.exists())
-            throw new ServerException(ResultCodeEnum.CODE_404,"视频文件不存在");
-        readFile(response,result);
+        super.getFile(response,userDto.getUserId(),fileId);
     }
 
     /*重命名文件或目录*/
@@ -160,6 +158,14 @@ public class FileInfoController extends BaseController{
         if(!pid.equals(Constants.MAIN_FOLDER_ID))
             checkedDirIds.add(pid);
         return success(fileInfoService.getDir(query,checkedDirIds));
+    }
+
+    /*正常用户创建文件下载链接*/
+    @PostMapping("/createDownloadUrl/{fileId}")
+    public ResponseVo<String> createDownloadUrl(HttpSession session,
+                                           @PathVariable("fileId")Integer fileId){
+        String userId = getUserInfoFromSession(session).getUserId();
+        return super.createDownLoadUrl(fileId,userId,false);
     }
 
     /*修改(多个)文件或目录的所属目录,即移动(多个)文件或目录*/

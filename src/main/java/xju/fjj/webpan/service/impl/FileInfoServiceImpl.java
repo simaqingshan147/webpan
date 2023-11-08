@@ -170,9 +170,9 @@ public class FileInfoServiceImpl implements FileInfoService {
         return fileInfoMapper.selectFileByFileId(fileId);
     }
 
-
+    @Override
     /*分页查询文件*/
-    private PagedResult<List<Document>> getFileByPage(FileInfoQuery query){
+    public PagedResult<List<Document>> getFileByPage(FileInfoQuery query){
         PageHelper.startPage(query.getPageNo(),query.getPageSize());
         List<FileInfo> fileInfos = fileInfoMapper.selectFilesByIds(query,null);
         PageInfo<FileInfo> pageInfo = new PageInfo<>(fileInfos);
@@ -344,6 +344,14 @@ public class FileInfoServiceImpl implements FileInfoService {
                     move(subDir,dirInfo.getDirId(),toUserId,query,now);
             }
         }
+    }
+
+    /*批量删除文件*/
+    @Override
+    public void deleteFileBatch(List<Integer> fileIds) {
+        if(fileIds == null||fileIds.isEmpty())
+            return;
+        fileInfoMapper.updateBatchStatusByIds(fileIds,FileStatusEnums.DELETE.getStatus());
     }
 
     @Override
@@ -559,6 +567,10 @@ public class FileInfoServiceImpl implements FileInfoService {
         return new File(targetPath);
     }
 
+    @Override
+    public List<FileInfo> selectFilesByIds(FileInfoQuery query, ArrayList<Integer> fileIds) {
+        return fileInfoMapper.selectFilesByIds(query,fileIds);
+    }
 
     /*重命名同名文件*/
     private String autoName(String userId,Integer dirId,String fileName){

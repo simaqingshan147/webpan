@@ -30,10 +30,13 @@ public class RedisComponent {
         //保存到redis
         String key = Constants.REDIS_USER_SPACE_PREFIX + userId;
         redisUtils.set(key,userSpaceDto,Constants.REDIS_ONE_DAY);
-        //保存到数据库
+        //当用户登录时,可能会重复保存,但是在这里更新db更安全,免得忘了导致数据不一致
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(userId);
-        userInfo.setUseSpace(userSpaceDto.getUseSpace());
+        if(userSpaceDto.getUseSpace() != null)
+            userInfo.setUseSpace(userSpaceDto.getUseSpace());
+        if(userSpaceDto.getTotalSpace() != null)
+            userInfo.setTotalSpace(userSpaceDto.getTotalSpace());
         userInfoMapper.update(userInfo);
     }
 
@@ -41,6 +44,7 @@ public class RedisComponent {
         UserSpaceDto userSpaceDto = (UserSpaceDto) redisUtils.get(Constants.REDIS_USER_SPACE_PREFIX + userId);
         //如果空间信息已过期
         if(userSpaceDto == null){
+            userSpaceDto = new UserSpaceDto();
             Long useSpace = fileInfoMapper.selectUseSpace(userId, FileStatusEnums.USING.getStatus());
             Long totalSpace = userInfoMapper.selectTotalSpace(userId);
             userSpaceDto.setUseSpace(useSpace);

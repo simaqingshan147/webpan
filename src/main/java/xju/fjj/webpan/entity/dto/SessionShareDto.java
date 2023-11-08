@@ -1,7 +1,5 @@
 package xju.fjj.webpan.entity.dto;
 
-import java.util.Date;
-
 /**
  * @author 新疆大学 冯俊杰
  * @version 1.0

@@ -1,7 +1,5 @@
 package xju.fjj.webpan.entity.enums;
 
-import java.util.Date;
-
 /**
  * @author 新疆大学 冯俊杰
  * @version 1.0
@@ -14,9 +12,9 @@ public enum ValidTypeEnums {
     DAY_30(2, 30, "30天"),
     FOREVER(3, Integer.MAX_VALUE, "永久有效");
 
-    private Integer type;
-    private Integer days;
-    private String description;
+    private final Integer type;
+    private final Integer days;
+    private final String description;
 
     ValidTypeEnums(Integer type, Integer days, String description) {
         this.type = type;

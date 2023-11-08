@@ -1,6 +1,7 @@
 package xju.fjj.webpan.controller;
 
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -27,7 +28,7 @@ import java.io.IOException;
  */
 @RestController("accountController")
 @RequestMapping("/user")
-public class AccountController extends BaseController{
+public class AccountController extends BaseFileController{
     @Resource
     UserInfoService userInfoService;
 
@@ -58,6 +59,18 @@ public class AccountController extends BaseController{
         SessionUserDto sessionUserDto = userInfoService.login(email,password);
         session.setAttribute(Constants.SESSION_KEY,sessionUserDto);
         return success(null);
+    }
+
+    /*获取用户头像*/
+    @GetMapping("/getAvatar/{userId}")
+    public void getAvatar(@PathVariable("userId") @NotBlank String userId,
+                          HttpServletResponse response) {
+        File avatarFile = userInfoService.getAvatarFile(userId);
+        if (avatarFile == null)
+            throw new ServerException(ResultCodeEnum.CODE_500, "头像文件不存在");
+        //上传文件
+        response.setContentType("image/jpg");
+        readFile(response, avatarFile);
     }
 
     @RequestMapping("/logout")

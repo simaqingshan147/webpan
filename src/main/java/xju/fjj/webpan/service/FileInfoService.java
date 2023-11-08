@@ -10,6 +10,7 @@ import xju.fjj.webpan.entity.vo.Document;
 import xju.fjj.webpan.entity.vo.PagedResult;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,8 @@ import java.util.Map;
  */
 public interface FileInfoService {
     PagedResult<List<Document>> findListByPage(FileInfoQuery query);
+
+    PagedResult<List<Document>> getFileByPage(FileInfoQuery query);
 
     List<Document> getDir(FileInfoQuery query, List<Integer> excludeDirs);
 
@@ -52,5 +55,9 @@ public interface FileInfoService {
     List<Document> findRecycleList(String userId);
 
     void saveShare(String userId, List<Map<String, Integer>> documents, String userId1, Integer dirId);
+
+    List<FileInfo> selectFilesByIds(FileInfoQuery query, ArrayList<Integer> integers);
+
+    void deleteFileBatch(List<Integer> fileIds);
 }
 

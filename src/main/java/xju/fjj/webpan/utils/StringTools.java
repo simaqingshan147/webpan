@@ -2,8 +2,6 @@ package xju.fjj.webpan.utils;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.stream.Stream;
-
 /**
  * @author 新疆大学 冯俊杰
  * @version 1.0

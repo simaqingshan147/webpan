@@ -61,6 +61,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    public void updateUserSpace(String userId,Long totalSpace) {
+        //更新redis,同时更新db
+        UserSpaceDto useSpaceDto = redisComponent.getUseSpaceDto(userId);
+        useSpaceDto.setTotalSpace(totalSpace);
+        redisComponent.saveUserSpaceDto(userId,useSpaceDto);
+    }
+
+    @Override
     public int register(String email, String nickName, String password, String emailCode) {
         //检测邮箱是否已注册
         UserInfo checkEmail =  userInfoMapper.selectByEmail(email);

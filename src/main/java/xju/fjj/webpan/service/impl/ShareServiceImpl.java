@@ -75,7 +75,7 @@ public class ShareServiceImpl implements ShareInfoService {
                 if(fileInfos != null && !fileInfos.isEmpty()){
                     for(FileInfo fileInfo:fileInfos) {
                         Optional<ShareInfo> first = files.stream().filter(file -> file.getDocumentId().equals(fileInfo.getFileId())).findFirst();
-                        FileShareVo fileShareVo = FileShareVo.convertFromFileInfo(first.get(), fileInfo);
+                        FileShareVo fileShareVo = FileShareVo.convertFromFileInfo(first.orElse(null), fileInfo);
                         data.add(fileShareVo);
                     }
                 }
@@ -86,7 +86,7 @@ public class ShareServiceImpl implements ShareInfoService {
                 if(dirInfos != null && !dirInfos.isEmpty()){
                     for(DirInfo dirInfo:dirInfos){
                         Optional<ShareInfo> first = dirs.stream().filter(dir -> dir.getDocumentId().equals(dirInfo.getDirId())).findFirst();
-                        FileShareVo fileShareVo = FileShareVo.convertFromDirInfo(first.get(), dirInfo);
+                        FileShareVo fileShareVo = FileShareVo.convertFromDirInfo(first.orElse(null), dirInfo);
                         data.add(fileShareVo);
                     }
                 }

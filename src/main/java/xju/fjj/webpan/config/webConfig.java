@@ -26,6 +26,8 @@ public class webConfig implements WebMvcConfigurer {
                 .addPathPatterns("/admin/**")
                 .addPathPatterns("/file/**")
                 .addPathPatterns("/recycle/**")
+                .addPathPatterns("/share/**")
+                .addPathPatterns("/webShare/saveShare")
                 .excludePathPatterns("/user/register")
                 .excludePathPatterns("/user/login")
                 .excludePathPatterns("/user/resetPwd");

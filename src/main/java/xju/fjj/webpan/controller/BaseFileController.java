@@ -60,9 +60,9 @@ public class BaseFileController extends BaseController{
             if(list == null || list.isEmpty())
                 throw  new ServerException(ResultCodeEnum.CODE_404,"文件不存在");
             fileInfo = list.get(0);
-        }
-        //如果为管理员,则都可以下载
-        fileInfo = fileInfoService.getFileByFileId(fileId);
+            //如果为管理员,则都可以下载
+        }else
+            fileInfo = fileInfoService.getFileByFileId(fileId);
 
         //生成随机下载码作为key，设定时限存入redis,防止随便下载
         String code = StringTools.getRandomNumber(Constants.LENGTH_10);

@@ -29,15 +29,6 @@ public class BaseController {
         return responseVo;
     }
 
-    protected ResponseVo<String> runTimeError(ServerException e){
-        ResponseVo<String> responseVo = new ResponseVo<>();
-        responseVo.setStatus(ERROR);
-        responseVo.setCode(e.getCode());
-        responseVo.setInfo(e.getInfo());
-        responseVo.setData(e.getMessage());
-        return responseVo;
-    }
-
     /*通过response传递文件*/
     protected void readFile(HttpServletResponse response, File file){
         FileInputStream in = null;

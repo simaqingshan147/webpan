@@ -31,21 +31,19 @@ public class RedisUtils<V> {
         return true;
     }
 
-    public Boolean set(String key,V value,long time){
+    public void set(String key,V value,long time){
         try {
             if(time > 0)
                 redisTemplate.opsForValue().set(key,value,time, TimeUnit.SECONDS);
             else
-                return set(key,value);
+                set(key,value);
         }catch (Exception e){
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
-    public Boolean delete(String key) {
-        return redisTemplate.delete(key);
+    public void delete(String key) {
+        redisTemplate.delete(key);
     }
 
     public V getAndDelete(String key) {

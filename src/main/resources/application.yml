@@ -4,11 +4,35 @@ spring:
     url: jdbc:mysql://localhost:3306/webpan?allowMultiQueries=true
     username: root
     password: Fjj150502008!
+    hikari:
+      pool-name: HiKariCPDatasource
+      minimum-idle: 5
+      idle-timeout: 180000
+      maximum-pool-size: 10
+      auto-commit: true
+      max-lifetime: 180000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
   data:
     redis:
       host: 192.168.137.11
       port: 6379
       password: fjj150502008
+      jedis:
+        pool:
+          max-active: 20
+          max-wait: -1
+          max-idle: 10
+      timeout: 2000
+  web:
+    resources:
+      add-mappings: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 15MB
   mail:
     host: smtp.qq.com
     protocol: smtp
@@ -22,6 +46,8 @@ spring:
 server:
   servlet:
     context-path: /api
+    session:
+      timeout: PT60M
   port: 8080
 
 mybatis:

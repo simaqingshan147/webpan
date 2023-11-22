@@ -169,6 +169,5 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfoMapper.update(userInfo);
         //删除redis缓存
         redisComponent.removeUserSpaceDto(userId);
-        //TODO logout可能需要删除更多redis缓存，或者进一步处理
     }
 }

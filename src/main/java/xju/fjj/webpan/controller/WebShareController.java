@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import xju.fjj.webpan.entity.constants.Constants;
 import xju.fjj.webpan.entity.dto.SessionShareDto;
@@ -85,7 +86,9 @@ public class WebShareController extends BaseFileController{
         return super.getFolderInfo(path);
     }
 
+    /** 登录用户保存到网盘*/
     @PostMapping("/saveShare")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<?> saveShare(HttpSession session,
                                    @NotNull Integer shareId,
                                    @NotNull List<Map<String,Integer>> documents,

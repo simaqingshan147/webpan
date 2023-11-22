@@ -90,7 +90,7 @@ public class EmailCodeServiceImpl implements EmailCodeService {
             return appConfig.getRegisterEmailTitle();
         else if (type == Constants.EMAIL_CODE_TYPE_RESET)
             return appConfig.getResetPwdEmailTitle();
-        return null;
+        return "无主题";
     }
 
     private String getContent(Integer type) {
@@ -98,7 +98,7 @@ public class EmailCodeServiceImpl implements EmailCodeService {
             return appConfig.getRegisterEmailContent();
         else if (type == Constants.EMAIL_CODE_TYPE_RESET)
             return appConfig.getResetPwdEmailContent();
-        return null;
+        return "";
     }
 
     private String getPrefix(Integer type){

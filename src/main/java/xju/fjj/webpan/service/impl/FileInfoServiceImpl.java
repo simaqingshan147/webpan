@@ -316,9 +316,9 @@ public class FileInfoServiceImpl implements FileInfoService {
             for(FileInfo fileInfo:fileInfos){
                 fileInfo.setFileId(null);
                 fileInfo.setDirId(pid);
-                fileInfo.setFileMd5(null);
+                //fileInfo.setFileMd5(null);
                 fileInfo.setUpdateTime(now);
-                fileInfo.setFileName(autoName(fromUserId,pid,fileInfo.getFileName()));
+                fileInfo.setFileName(autoName(toUserId,pid,fileInfo.getFileName()));
             }
             fileInfoMapper.insertBatch(fileInfos);
         }
@@ -622,7 +622,6 @@ public class FileInfoServiceImpl implements FileInfoService {
         query.setUserId(userId);
         query.setPid(dirId);
         query.setStatus(FileStatusEnums.USING.getStatus());
-        //TODO 只检查正常文件,则可能与回收站文件同名,恢复文件同样要重命名
         //同目录下存在同名文件,返回重命名
         if(fileInfoMapper.selectFileCount(query)>0){
             String randomNumber = StringTools.getRandomNumber(Constants.LENGTH_5);

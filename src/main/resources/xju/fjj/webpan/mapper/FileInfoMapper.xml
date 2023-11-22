@@ -99,6 +99,13 @@
             file_id in (<foreach collection="fileIds" item="fileId" separator=",">#{fileId}</foreach>)
     </update>
 
+    <delete id="deleteBatchFile">
+        delete from file_info where file_id in
+        <foreach collection="fileIds" item="fileId" separator="," open="(" close=")">
+            #{fileId}
+        </foreach>
+    </delete>
+
     <select id="selectFilesByIds" resultType="fileInfo" resultMap="FileInfoMap">
         select * from file_info
         <where>
@@ -193,6 +200,15 @@
         <if test="status != null">
             and status = #{status}
         </if>
+    </select>
+    <select id="selectExpireFiles" resultType="int">
+        select file_id from file_info
+        <where>
+            status = 4
+            <if test="lastValidTime != null">
+                and recovery_time >= lastValidTime
+            </if>
+        </where>
     </select>
 
 </mapper>

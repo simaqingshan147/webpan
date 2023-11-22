@@ -53,7 +53,7 @@ public class ApiController extends BaseController {
         specCaptcha.out(response.getOutputStream());
     }
 
-    @GetMapping("/emailCode")
+    @PostMapping("/emailCode")
     public ResponseVo<?> emailCode(HttpSession session,
                                    @NotBlank @Email String email,
                                    @NotBlank String checkCode,

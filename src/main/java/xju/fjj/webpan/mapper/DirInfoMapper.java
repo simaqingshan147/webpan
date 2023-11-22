@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import xju.fjj.webpan.entity.pojo.DirInfo;
 import xju.fjj.webpan.entity.query.FileInfoQuery;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -28,4 +29,8 @@ public interface DirInfoMapper {
 
     void updateBatchStatusByIds(@Param("dirIds") List<Integer> toRecycleDirIds,
                                 @Param("status") Integer status);
+
+    List<Integer> selectExpireDirs(@Param("lastValidTime") Date lastValidTime);
+
+    void deleteBatchDirs(List<Integer> delDirIds);
 }

@@ -6,6 +6,7 @@ import xju.fjj.webpan.entity.vo.Document;
 import xju.fjj.webpan.entity.pojo.FileInfo;
 import xju.fjj.webpan.entity.query.FileInfoQuery;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -35,4 +36,8 @@ public interface FileInfoMapper{
     void insert(FileInfo fileInfo);
 
     void insertBatch(List<FileInfo> fileInfos);
+
+    List<Integer> selectExpireFiles(@Param("lastValidTime") Date lastValidTime);
+
+    void deleteBatchFile(List<Integer> fileIds);
 }

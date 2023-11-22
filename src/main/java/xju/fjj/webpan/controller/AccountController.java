@@ -73,7 +73,7 @@ public class AccountController extends BaseFileController{
         readFile(response, avatarFile);
     }
 
-    @RequestMapping("/logout")
+    @PostMapping("/logout")
     public ResponseVo<?> logout(HttpSession session){
         //清空session
         String userId = getUserInfoFromSession(session).getUserId();
@@ -91,7 +91,7 @@ public class AccountController extends BaseFileController{
         return success(null);
     }
 
-    @GetMapping("/getUseSpace")
+    @PostMapping("/getUseSpace")
     public ResponseVo<?> getUseSpace(HttpSession session){
         SessionUserDto sessionUserDto = getUserInfoFromSession(session);
         UserSpaceDto userSpaceDto = userInfoService.getUseSpaceDto(sessionUserDto.getUserId());

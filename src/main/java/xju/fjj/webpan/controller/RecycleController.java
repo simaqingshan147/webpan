@@ -3,6 +3,7 @@ package xju.fjj.webpan.controller;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +35,8 @@ public class RecycleController extends BaseController{
     }
 
     /*批量恢复文件夹和文件*/
-    @PostMapping
+    @PostMapping("/recoverFile")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<?> recoverFile(HttpSession session,
                                      @NotNull List<Integer> dirIds,
                                      @NotNull List<Integer> fileIds){
@@ -44,12 +46,15 @@ public class RecycleController extends BaseController{
     }
 
     /*批量删除文件夹和文件*/
-    @PostMapping
+    @PostMapping("delFile")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<?> delFile(HttpSession session,
                                  @NotNull List<Integer> dirIds,
                                  @NotNull List<Integer> fileIds){
         String userId = getUserInfoFromSession(session).getUserId();
         fileInfoService.changeFilesOrDirs(userId,dirIds,fileIds,FileStatusEnums.DELETE.getStatus());
+        //清理标记删除文件
+        fileInfoService.autoRemove(userId);
         return success(null);
     }
 }

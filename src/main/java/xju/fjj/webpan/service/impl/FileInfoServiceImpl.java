@@ -275,6 +275,24 @@ public class FileInfoServiceImpl implements FileInfoService {
         redisComponent.saveUserSpaceDto(userId,useSpaceDto);
     }
 
+    /*标记删除移入回收站7天后的文件*/
+    @Override
+    public void removeExpireDirsAndFiles() {
+        //最后有效时间
+        //凡是recovery_time大于该时间的，都是过期
+        Calendar lastValidTime = Calendar.getInstance();
+        lastValidTime.setTime(new Date());
+        lastValidTime.add(Calendar.DAY_OF_YEAR,-7);
+        List<Integer> expireFiles = fileInfoMapper.selectExpireFiles(lastValidTime.getTime());
+        List<Integer> expireDirs = dirInfoMapper.selectExpireDirs(lastValidTime.getTime());
+        if(expireFiles != null && !expireFiles.isEmpty())
+            fileInfoMapper.updateBatchStatusByIds(expireFiles,FileStatusEnums.DELETE.getStatus());
+        if(expireDirs != null && !expireDirs.isEmpty())
+            dirInfoMapper.updateBatchStatusByIds(expireDirs,FileStatusEnums.RECOVERY.getStatus());
+    }
+
+
+
     /*将其他用户的(多个)文件/目录保存到自己的目录下*/
     @Override
     public void saveShare(String fromUserId, List<Map<String, Integer>> documents, String toUserId, Integer pid) {
@@ -346,12 +364,38 @@ public class FileInfoServiceImpl implements FileInfoService {
         }
     }
 
+    /**当用户删除文件时,自动删除标记删除*/
+    @Override
+    public void autoRemove(String userId) {
+        FileInfoQuery query = new FileInfoQuery();
+        query.setUserId(userId);
+        query.setStatus(FileStatusEnums.DELETE.getStatus());
+        //先删除目录,目录级联删除文件
+        List<DirInfo> dirInfos = dirInfoMapper.selectDirs(query, null);
+        if(dirInfos != null && !dirInfos.isEmpty()){
+            List<Integer> delDirIds = new ArrayList<>();
+            for(DirInfo dirInfo:dirInfos)
+                delDirIds.add(dirInfo.getDirId());
+            dirInfoMapper.deleteBatchDirs(delDirIds);
+        }
+        //再删除文件
+        List<FileInfo> fileInfos = fileInfoMapper.selectFilesByIds(query, null);
+        if(fileInfos != null && !fileInfos.isEmpty()){
+            List<Integer> delFileIds = new ArrayList<>();
+            for (FileInfo fileInfo : fileInfos)
+                delFileIds.add(fileInfo.getFileId());
+            fileInfoMapper.deleteBatchFile(delFileIds);
+        }
+    }
+
     /*批量删除文件*/
     @Override
     public void deleteFileBatch(List<Integer> fileIds) {
         if(fileIds == null||fileIds.isEmpty())
             return;
+        //先标记删除,再物理删除
         fileInfoMapper.updateBatchStatusByIds(fileIds,FileStatusEnums.DELETE.getStatus());
+        fileInfoMapper.deleteBatchFile(fileIds);
     }
 
     @Override
@@ -375,7 +419,7 @@ public class FileInfoServiceImpl implements FileInfoService {
                     //dbFile.setFileId(fileId)   第一片上传没有fileId
                     dbFile.setUserId(userId);  //userId可能不同,因为md5相同的可能是其他用户的文件
                     dbFile.setDirId(dirId);
-                    dbFile.setFileMd5(null);   //md5必须唯一
+                    //dbFile.setFileMd5(null);   //md5必须唯一
                     dbFile.setUpdateTime(now);
                     dbFile.setStatus(FileStatusEnums.USING.getStatus());  //状态正常
                     dbFile.setFileName(autoName(userId,dirId,fileName));  //重命名同名文件

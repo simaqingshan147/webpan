@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/webpan&allowMultiQueries=true
+    url: jdbc:mysql://localhost:3306/webpan?allowMultiQueries=true
     username: root
     password: Fjj150502008!
   data:
@@ -11,15 +11,19 @@ spring:
       password: fjj150502008
   mail:
     host: smtp.qq.com
+    protocol: smtp
     port: 587
     username: 3490139755@qq.com
-    password: eulewspzwjkqdbjf
+    password: hyjbhgnvgmejcjcf
     properties:
       mail:
         debug: true
-        smtp:
-          ssl:
-            enable: true
+
+server:
+  servlet:
+    context-path: /api
+  port: 8080
+
 mybatis:
   type-aliases-package: xju.fjj.webpan.entity.pojo  #启用别名
   configuration:

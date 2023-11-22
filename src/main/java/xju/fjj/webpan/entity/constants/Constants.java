@@ -15,8 +15,7 @@ public class Constants {
     public static final String SESSION_SHARE_KEY_PREFIX = "session_share_key";  //session存储分享文件信息的键的前缀
     /*文件相关*/
 
-
-    public static final Integer MAIN_FOLDER_ID = 0;         //首页文件和目录的pid，即“首页文件夹"的dir_id
+    public static final int MAIN_FOLDER_ID = 0;         //首页文件和目录的pid，即“首页文件夹"的dir_id
     public static final String FILE_FOLDER_FILE = "file/";  //文件存储的项目下相对路径
     public static final String FILE_FOLDER_TEMP = "temp/";   //临时文件处理的项目下相对路径
     public static final String TS_NAME = "index.ts";

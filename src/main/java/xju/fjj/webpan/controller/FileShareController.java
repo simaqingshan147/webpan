@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +48,7 @@ public class FileShareController extends BaseController{
 
     /*分享文件*/
     @PostMapping("/shareFile")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<?> shareFile(HttpSession session,
                                    @NotNull Integer id,
                                    @NotNull @Size(max = 1) Integer isFolder,
@@ -72,6 +74,7 @@ public class FileShareController extends BaseController{
 
     /*(批量)取消分享*/
     @PostMapping("/cancelShare")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<?> cancelShare(HttpSession session,
                                      @NotNull List<Integer> shareIds){
         String userId = getUserInfoFromSession(session).getUserId();

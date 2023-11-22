@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +58,7 @@ public class FileInfoController extends BaseFileController{
 
     /*文件分片上传*/
     @PostMapping("/uploadFile")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<UploadResultDto> uploadFile(HttpSession session,
                                     MultipartFile file,
                                     Integer fileId,
@@ -80,13 +82,13 @@ public class FileInfoController extends BaseFileController{
     }
 
     /*获取一长串目录下的最末目录的id,也就是获取当前所属目录id*/
-    @GetMapping("/getFolderInfo")
+    @PostMapping("/getFolderInfo")
     public ResponseVo<Map<String, Object>> getFolderInfo(@NotBlank String path){
         return super.getFolderInfo(path);
     }
 
     /*预览获取视频索引或切片文件*/
-    @GetMapping("/getVideoInfo/{fileId}")
+    @PostMapping("/getVideoInfo/{fileId}")
     public void getVideoInfo(HttpServletResponse response,
                         HttpSession session,
                         @PathVariable("fileId") @NotBlank String fileId){
@@ -95,7 +97,7 @@ public class FileInfoController extends BaseFileController{
     }
 
     /*预览获取文件*/
-    @GetMapping("/getFile/{fileId}")
+    @PostMapping("/getFile/{fileId}")
     public void getFile(HttpServletResponse response,
                         HttpSession session,
                         @PathVariable("fileId") @NotNull Integer fileId){
@@ -105,6 +107,7 @@ public class FileInfoController extends BaseFileController{
 
     /*重命名文件或目录*/
     @PostMapping("/rename")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<Document> rename(@NotNull Integer id,
                                        @NotNull Integer pid,
                                        @NotBlank String newName,
@@ -117,6 +120,7 @@ public class FileInfoController extends BaseFileController{
 
     /*将(多个)文件或目录移入回收站*/
     @PostMapping("/recycle")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<?> recycle(HttpSession session,
                                  @NotNull List<Integer> dirIds,
                                  @NotNull List<Integer> fileIds){
@@ -127,6 +131,7 @@ public class FileInfoController extends BaseFileController{
 
     /*新建文件夹*/
     @PostMapping("/newFolder")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<Document> createFolder(HttpSession session,
                                              @NotNull Integer pid,
                                              @NotBlank String dirName){
@@ -170,6 +175,7 @@ public class FileInfoController extends BaseFileController{
 
     /*修改(多个)文件或目录的所属目录,即移动(多个)文件或目录*/
     @PostMapping("changeFolder")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<?> changeFolder(@NotNull List<Integer> dirIds,
                                       @NotNull List<Integer> fileIds,
                                       @NotBlank Integer dirId){

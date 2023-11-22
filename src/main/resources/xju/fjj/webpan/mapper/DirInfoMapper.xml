@@ -64,9 +64,17 @@
                 recovery_time = now(),update_time = null
             </if>
         </trim>
-        where
+        <where>
             dir_id in (<foreach collection="dirIds" item="dirId" separator=",">#{dirId}</foreach>)
+        </where>
     </update>
+
+    <delete id="deleteBatchDirs">
+        delete from dir_info where dir_id in
+        <foreach collection="delDirIds" item="delDirId" separator="," open="(" close=")">
+            #{delDirId}
+        </foreach>
+    </delete>
 
     <select id="selectDirs" resultType="dirInfo" resultMap="dirInfoMap">
         select * from dir_info
@@ -128,6 +136,15 @@
     </select>
     <select id="selectDirByDirId" resultType="dirInfo" resultMap="dirInfoMap">
         select * from dir_info where dir_id = #{dir_id}
+    </select>
+    <select id="selectExpireDirs" resultType="int">
+        select dir_id from dir_info
+        <where>
+            status = 4
+            <if test="lastValidTime != null">
+                and recovery_time >= lastValidTime
+            </if>
+        </where>
     </select>
 
     <insert id="insertDir" parameterType="dirInfo" useGeneratedKeys="true" keyColumn="dir_id" keyProperty="dirId">

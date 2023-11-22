@@ -26,7 +26,9 @@ public class webConfig implements WebMvcConfigurer {
                 .addPathPatterns("/admin/**")
                 .addPathPatterns("/file/**")
                 .addPathPatterns("/recycle/**")
-                .excludePathPatterns("/user/register");
+                .excludePathPatterns("/user/register")
+                .excludePathPatterns("/user/login")
+                .excludePathPatterns("/user/resetPwd");
         registry.addInterceptor(adminInterceptor)
                 .order(1)
                 .addPathPatterns("/admin/**");

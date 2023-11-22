@@ -84,7 +84,7 @@ public class AdminController extends BaseFileController{
     }
 
     /*预览获取视频索引或切片文件*/
-    @GetMapping("/getVideoInfo/{fileId}")
+    @PostMapping("/getVideoInfo/{fileId}")
     public void getVideoInfo(HttpServletResponse response,
                              HttpSession session,
                              @PathVariable("fileId") @NotBlank String fileId){
@@ -93,7 +93,7 @@ public class AdminController extends BaseFileController{
     }
 
     /*预览获取文件*/
-    @GetMapping("/getFile/{fileId}")
+    @PostMapping("/getFile/{fileId}")
     public void getFile(HttpServletResponse response,
                         HttpSession session,
                         @PathVariable("fileId") @NotNull Integer fileId){
@@ -110,6 +110,7 @@ public class AdminController extends BaseFileController{
     }
 
     @PostMapping("/delFile")
+    @Transactional(rollbackFor = Exception.class)
     public ResponseVo<?> delFile(List<Integer> fileIds){
         fileInfoService.deleteFileBatch(fileIds);
         return success(null);

@@ -59,5 +59,9 @@ public interface FileInfoService {
     List<FileInfo> selectFilesByIds(FileInfoQuery query, ArrayList<Integer> integers);
 
     void deleteFileBatch(List<Integer> fileIds);
+
+    void removeExpireDirsAndFiles();
+
+    void autoRemove(String userId);
 }
 
